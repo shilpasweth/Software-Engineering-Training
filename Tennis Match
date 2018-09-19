@@ -1,0 +1,127 @@
+//use IDEONE
+
+#include <iostream>
+#include <string>
+using namespace std;
+
+struct Player{
+	char name;
+	int sets;
+	int games;
+	int points;
+
+};
+
+//indexing for players
+ #define PLAYER_A 0
+ #define PLAYER_B 1
+
+
+//indexing for game points when players are in deuce state
+ #define DISADV_I 0
+ #define DEUCE_I 1
+ #define ADV_I 2
+
+//constant for determining if game is currently in deuce state
+ #define NORMAL true
+ #define DEUCE_STATE false
+
+//initializing players
+Player players[] = {{'A',0,0,0},
+{'B',0,0,0}};
+
+
+ bool game_state=NORMAL;
+
+//points for noraml game
+string Points[]={"LOVE","15","30","40"};
+//points for deuce state
+string deuce_state[]={"DISADV","DEUCE", "ADV"};
+
+void game_won(int play_ind, int opp_ind){
+	players[play_ind].points=0;
+	players[opp_ind].points=0;
+
+	game_state=NORMAL;
+
+	//updates set and game score
+	players[play_ind].games++;
+	players[play_ind].sets+=players[play_ind].games/6;
+	players[play_ind].games=players[play_ind].games%6;
+
+
+
+	//TIE BREAKER CAN BE AROUND HERE
+
+
+}
+
+void update_score(char player){
+	int play_ind;
+	int opp_ind;
+
+	if(player=='A'){
+		play_ind=PLAYER_A;
+	}
+	else{
+		play_ind=PLAYER_B;
+	}
+	opp_ind=(play_ind+1)%2;
+
+	if(game_state==NORMAL){
+		players[play_ind].points++;
+		//check if both players at 40
+		if(players[play_ind].points==3&&players[opp_ind].points==3){
+			
+			game_state=DEUCE_STATE;
+
+			players[play_ind].points=DEUCE_I;
+			players[opp_ind].points=DEUCE_I;
+		}
+		else if(players[play_ind].points==4){
+			game_won(play_ind,opp_ind);
+		}
+	}
+	else{
+		players[play_ind].points++;//Gain Advantage
+		players[opp_ind].points--;//Lose Advantage
+
+		if(players[play_ind].points>ADV_I){
+			game_won(play_ind,opp_ind);//Advantage more than 1 point
+		}
+	}
+
+	
+
+}
+
+void print_score(){
+	cout<<"player:\t"<<players[PLAYER_A].name<<"\t"<<players[PLAYER_B].name<<endl;
+	cout<<"sets:\t"<<players[PLAYER_A].sets<<"\t"<<players[PLAYER_B].sets<<endl;
+	cout<<"games:\t"<<players[PLAYER_A].games<<"\t"<<players[PLAYER_B].games<<endl;
+
+	if(game_state==NORMAL){
+		cout<<"points:\t"<<Points[players[PLAYER_A].points]<<"\t"<<Points[players[PLAYER_B].points]<<endl;
+	}
+	else{
+		cout<<"points:\t"<<deuce_state[players[PLAYER_A].points]<<"\t"<<deuce_state[players[PLAYER_B].points]<<endl;
+	}
+	
+}
+
+void get_status(string playthrough){
+
+	for(int i=0;i<playthrough.size();i++){
+		update_score(playthrough.at(i));
+	}
+
+	print_score();
+}
+
+
+int main() {
+	// your code goes here
+	string playthrough="ABABABAAB";
+	get_status(playthrough);
+	return 0;
+}
